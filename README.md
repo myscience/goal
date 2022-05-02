@@ -1,4 +1,4 @@
-# GOAL: The Code Repository
+# GOAL: The Code Repository 
 
 This repository hosts the official implementation of `GOAL` as described in the paper: *Error Based or Target Based? A unifying framework for learning in recurrent spiking networks*, Plos Computation Biology (2022).
 
