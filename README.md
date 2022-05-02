@@ -106,4 +106,4 @@ We benchmarked our model on the standard `3D Trajectory` task. We studied model 
 
 ![Exploration of Rank Effects](res/Figure_2.png)
 
-For a more in-depth discussion (and applications to closed-loop tasks such as `Bipedal Walker 2D`) refer to [`our pubblication`]().
+For a more in-depth discussion (and applications to closed-loop tasks such as `Bipedal Walker 2D`) refer to [`our publication`]().
