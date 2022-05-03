@@ -4,7 +4,7 @@ This repository hosts the official implementation of `GOAL` as described in the 
 
 ## Overview
 
-The repository is divided into two folders: a primary one `src/` containing and a secondary `src/numpy`, each one containing the implementation of the same algorithm, the first is built on top of the `PyTorch` library, which enables native GPU support, while the second written in pure `NumPy` (with no GPU support).
+The repository is divided into two folders: a primary one `src/` and a secondary `src/numpy`, each one containing the implementation of the same algorithm. The first is built on top of the `PyTorch` library, which enables native GPU support, while the second is written in pure `NumPy` (with no GPU support).
 
 # Environments
 
@@ -25,7 +25,7 @@ All the packages can be installed via the command `pip install <name_of_package>
 We provide a training script `train.py` for the `ND-Trajectory` benchmark. To run it, simply navigate to the appropriate folder where `train.py` is located and launch it via:
 
 ```
-python test.py -N 150 -T 150 -O 3 -E 5000 1000 -savepath output.pkl --gpu --verbose
+python train.py -N 150 -T 150 -O 3 -E 5000 1000 -savepath output.pkl --gpu --verbose
 ```
 
 We report the list of supported arguments.
