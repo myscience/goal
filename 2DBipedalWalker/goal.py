@@ -183,13 +183,9 @@ class LTTS:
 
         # We then build a target network dynamics
 
-        #inps = inps.reshape(24,time_steps)
-
         Inp = self.Jin@inps#np.einsum ('ij, njt->nit', self.Jin, inps);
         tInp = Inp + self.Jteach@outs#np.einsum ('ij, njt->nit', self.Jteach, outs);
 
-        #Targ = [self.compute (t_inp , rec = False)[0] for t_inp in tInp];
-        #Targ = self.compute (tInp , rec = False)[0]
         Targ = self.compute (tInp , rec = True)[0]
 
         return Targ, Inp;
@@ -254,13 +250,10 @@ class LTTS:
         outs = np.copy(np.array (a_coll));
         #outs = P@np.array (a_coll);
         outs_nl = B@S_rout
-        #outs_nl[4:-1,:] = sigm(np.array (outs[4:-1,:] ), 1.);
-        #np.std(a_out[:,1:-1] - outs[:,0:-2] )
-        print("estimated error = " + str(np.std(outs_nl[0:self.O,1:-1] - a_coll[:,0:-2])))
-        #outs_nl[0:self.O,:] = np.copy(a_coll)
+        
+        if rank>0:
 
-        #print(np.shape(outs_nl))
-        #outs_nl = sigm(np.array (outs), 1.);
+	        print("estimated error = " + str(np.std(outs_nl[0:self.O,1:-1] - a_coll[:,0:-2])))
 
         dH = np.zeros (self.N);
 
@@ -308,14 +301,12 @@ class LTTS:
 
                     itau_targ = 0.1;
 
-                    #print(beta_targ)
-
                     S_pred_hat = S_pred_hat * (1. - beta_targ) + s_out [:, t+1] * (beta_targ)
                     S_targ_hat = S_targ_hat * (1. - beta_targ) + targets [:, t+1] * ( beta_targ)
+                    
+                    #print(B)
 
                     if rank>0:
-
-                        #dJ = np.outer (D @(S_targ_hat - S_pred_hat)*self._dsigm (self.H, dv = 1), dH);#
 
                         err = B @ (S_targ_hat -  S_pred_hat)
                         err_eb = ( outs_nl[:,t] - B @ S_pred_hat)#R @ S_pred_hat)
@@ -330,11 +321,12 @@ class LTTS:
 
                     else:
                         dJ = np.outer ((S_targ_hat - S_pred_hat) , dH);#
-                    #dJ = np.outer (D @ (targets [:, t+1] - self._sigm(self.H, dv = self.dv)), dH);
-                    #l2 = 10^-3
-                    self.J += dJ*alpha #- l2*self.J
-                    #self.J = adam.step(self.J,dJ)
-
+                        alpha = 0.1
+                        #print(np.std(dJ))
+                   
+                   
+                    self.J += alpha*dJ# dJ*alpha*0.
+                   
                     S_rout[:,t+1] = S_rout[:,t]*beta_ro + (1-beta_ro)* s_out[:,t+1]
                     a_out = self.Jout @ S_rout
 
@@ -343,23 +335,19 @@ class LTTS:
 
                     np.fill_diagonal (self.J, 0.);
 
-                ftarg = np.mean(targets,1)
-                fav = np.mean(s_out,1)
+                #ftarg = np.mean(targets,1)
+                #fav = np.mean(s_out,1)
 
-                dJ = np.outer ((ftarg - fav) , DH);#
-                self.J += dJ*0.05
-                np.fill_diagonal (self.J, 0.);
-
-                print(np.mean(fav))
-                print(np.mean(ftarg))
+                #dJ = np.outer ((ftarg - fav) , DH);#
+                #self.J += dJ*0.05
+                #np.fill_diagonal (self.J, 0.);
 
                 stdMax = 3.
                 stdJ = np.std(self.J)
-                #if stdJ>stdMax:
-                    #self.J = self.J/stdJ*stdMax
+
                 self.J[self.J>10.]=10.
                 self.J[self.J<-10.]=-10.
-                print(stdJ)
+                #print(stdJ)
 
                 error_ro = np.sum( np.abs(a_out[0:4,1:-1] - outs[0:4,0:-2]) )
 
@@ -434,13 +422,9 @@ class LTTS:
         plt.plot(outs[0,:])
         plt.savefig("outs_train.eps", format='eps')
 
-            #error1 = np.sum( np.abs(a_out1 - outs))
-            #error2 = np.sum( np.abs(a_out2[:,0:-2] - outs[:,1:-1]))
 
-            #if np.mod(epoch,100)==0:
-            #    print(error)
-            #    print(error1)
-            #    print(error2)
+        return a_out,error;
+
 
 
         return a_out,error;

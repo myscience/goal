@@ -30,7 +30,7 @@ shape = (N, I, O, T);
 n_examples = 1
 n_examples_validation = 1
 
-num_iterations = 1
+num_iterations = 100
 num_iterations_out = 15
 
 epochs_out =  150
@@ -118,7 +118,9 @@ for n_rep in range(n_reps):
 			a_aggr = np.zeros((O,0),dtype=float)
 			s_aggr = np.zeros((I,0),dtype=float)
 			S_aggr = np.zeros((N,0),dtype=float)
-
+			
+			#Here the internal target of spikes are defined
+			
 			for n_batch in range(n_examples):
 
 				a_coll = a_coll_load[n_batch][:,0+t0:time_steps+t0]
@@ -126,21 +128,31 @@ for n_rep in range(n_reps):
 				a_aggr = np.concatenate( (a_aggr.T,a_coll.T) ).T
 				S_gen, action = ltts.compute (inputs[n_batch][:,:]);
 				S_aggr = np.concatenate( (S_aggr.T,itargets[n_batch].T) ).T
+				
+			#Here a rudimentary RO is learned to project errors with weights that are not totally random
 
 
 			for kk in trange (20, leave = False, desc = 'RO'):
-				a_out,error = ltts.clone_ro ( a_aggr , S_aggr, epochs = 500);
-				#print(error)
-
+				a_out,error = ltts.clone_ro ( a_aggr , S_aggr, epochs = 500)
+				#print(np.std(ltts.Jout))
+				print(error)
+			
 			
 			stdB_0 = 0.4
 			ltts.par["alpha"] = ltts.par["alpha"] / np.std(ltts.Jout)*stdB_0
-
+			
+			
 			B = np.random.normal(0, np.std(ltts.Jout)*2 ,size=(rank,N))
-
-			B[0:O,:] = np.copy(ltts.Jout)#B[0:rank,:]#
-
+			
 			if rank>0:
+
+				B[0:O,:] = np.copy(ltts.Jout)#B[0:rank,:]#
+			
+			print(np.std(B))
+			
+			## Here the internal targets are learned by adjusting recurrent weights following the goal learning rule
+
+			if rank>-1:
 				DDDS = []
 				DY = []
 				DY_APPR = []
@@ -153,6 +165,7 @@ for n_rep in range(n_reps):
 					external_error=0
 					external_error_val=0
 
+					
 					for n_batch in range(n_examples):
 
 						a_coll = a_coll_load[n_batch][:,0+t0:time_steps+t0]
