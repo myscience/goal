@@ -80,7 +80,7 @@ for n_rep in range(n_reps):
 			tau_targ = tau_ro
 			beta_targ = beta_ro
 
-			alpha_rank = alpha/np.sqrt(rank)*np.sqrt(500)
+			alpha_rank = alpha#/np.sqrt(rank)*np.sqrt(500)
 
 			# Here we build the dictionary of the simulation parameters
 			par = {'tau_m' : tau_m, 'tau_s' : tau_s, 'tau_ro' : tau_ro, 'beta_ro' : beta_ro,'beta_targ' : beta_targ,
@@ -91,6 +91,8 @@ for n_rep in range(n_reps):
 			del goal
 			import goal
 			ltts = goal.LTTS (par);
+			
+			
 
 			ltts.J *=0.
 			ltts.Jout *=0.
@@ -108,7 +110,8 @@ for n_rep in range(n_reps):
 
 			a_coll_val_load = [ loadtxt("action_state/action_" + str( validation_nums[n_batch]  ) + ".csv") for n_batch in range(n_examples_validation)]
 			s_coll_val_load = [ loadtxt("action_state/state_" + str( validation_nums[n_batch]  ) + ".csv") for n_batch in range(n_examples_validation)]
-
+			
+			
 			itargets = [ltts.implement (s_coll_load[n_batch][0:I,0+t0:time_steps+t0],a_coll_load[n_batch][:,0+t0:time_steps+t0],time_steps)[0] for n_batch in range(n_examples)]
 			inputs = [ltts.implement (s_coll_load[n_batch][0:I,0+t0:time_steps+t0],a_coll_load[n_batch][:,0+t0:time_steps+t0],time_steps)[1] for n_batch in range(n_examples)]
 
@@ -119,6 +122,8 @@ for n_rep in range(n_reps):
 			s_aggr = np.zeros((I,0),dtype=float)
 			S_aggr = np.zeros((N,0),dtype=float)
 			
+			
+			
 			#Here the internal target of spikes are defined
 			
 			for n_batch in range(n_examples):
@@ -128,9 +133,9 @@ for n_rep in range(n_reps):
 				a_aggr = np.concatenate( (a_aggr.T,a_coll.T) ).T
 				S_gen, action = ltts.compute (inputs[n_batch][:,:]);
 				S_aggr = np.concatenate( (S_aggr.T,itargets[n_batch].T) ).T
-				
+			
 			stdB_0 = 0.4
-			ltts.par["alpha"] = ltts.par["alpha"] / np.std(ltts.Jout)*stdB_0
+			#ltts.par["alpha"] = ltts.par["alpha"] / np.std(ltts.Jout)*stdB_0
 			
 			B = np.random.normal(0, np.std(ltts.Jout)*2 ,size=(rank,N))
 			
@@ -138,7 +143,9 @@ for n_rep in range(n_reps):
 
 				B[0:O,:] = np.copy(ltts.Jout)#B[0:rank,:]#
 			
-			print(np.std(B))
+			#print(np.std(B))
+			
+			
 			
 			## Here the internal targets are learned by adjusting recurrent weights following the goal learning rule
 
@@ -195,6 +202,7 @@ for n_rep in range(n_reps):
 					plt.savefig(os.path.join(folder,"DS" + str(N) + "_si" + str(sigma_input) + "_st" + str(sigma_teach) + "_" + str(n_rep)  + "_n_ex" +str(n_examples) + "_rank_" +str(rank) + "_tau_" + str(tau_targ)  +".eps"), format='eps')
 
 			#print(np.std(ltts.J))
+			
 
 			internal_error_coll = []
 			external_error_coll = []
