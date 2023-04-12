@@ -16,7 +16,7 @@ matplotlib
 numpy
 os
 tqdm
-gym
+gym==0.18.0
 box2d-py
 swig
 ```
